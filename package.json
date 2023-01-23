@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/connorcodefoot/tinyapp/issues"
   },
-  "homepage": "https://github.com/connorcodefoot/tinyapp#readme"
+  "homepage": "https://github.com/connorcodefoot/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
