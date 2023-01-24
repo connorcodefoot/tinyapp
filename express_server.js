@@ -27,14 +27,16 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// Adding a URL
+// Rendering new URL form
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// Posting data from /urls/new to url database + redirect to urls/id
 app.post("/urls", (req, res) => {
-  console.log(generateRandomString(req.body.longURL))
-  res.send('Oh ya'); // Respond with 'Ok' (we will replace this)
+  const id = (generateRandomString(req.body.longURL))
+  urlDatabase[id] = req.body.longURL
+  res.redirect(`/urls/${id}`); 
 });
 
 // A specific URL by ID
@@ -43,6 +45,10 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id]
+  res.redirect(longURL);
+});
 
 // Test Code
 app.get("/", (req, res) => {
