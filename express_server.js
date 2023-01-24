@@ -51,6 +51,13 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
+// Delete URL from database
+app.post("/urls/:id/delete", (req, res) => {
+
+  delete urlDatabase[req.params.id]
+  res.redirect('/urls');
+})
+
 // Test Code
 app.get("/", (req, res) => {
   res.send("Hello!");
