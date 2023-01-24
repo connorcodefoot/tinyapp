@@ -19,15 +19,15 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-/************************* Endpoint config *************************/
+/************************* ROUTES *************************/
 
-// All URLs
+// Urls index page - includes all URLs/IDs stored within the urldatabase
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-// Rendering new URL form
+// Render URL Index submission form
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -39,12 +39,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`); 
 });
 
-// A specific URL by ID
+// Render URL Show with information for the ID provided within the URL param
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
+// Redirect user to the URL that corresponds to the ID provided with the URL param
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]
   res.redirect(longURL);
