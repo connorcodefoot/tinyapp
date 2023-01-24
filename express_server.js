@@ -52,6 +52,11 @@ app.get("/u/:id", (req, res) => {
 });
 
 // Edit URL
+app.post("/urls/:id/edit", (req, res) => {
+
+  urlDatabase[req.params.id] = req.body.newURL
+  res.redirect(`/urls/${req.params.id}`); 
+});
 
 
 // Delete URL from database
