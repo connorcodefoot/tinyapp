@@ -9,8 +9,9 @@ function generateRandomString() {
 function findUser(email) {
   for (const user in usersDatabase) {
     if(email === usersDatabase[user].email){
-      return true
+      return usersDatabase[user]
     }
+    return false
   }
 }
 
@@ -33,8 +34,8 @@ const urlDatabase = {
 const usersDatabase = {
   userRandomID: {
     id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    email: "a@b.com",
+    password: "pb",
   },
   user2RandomID: {
     id: "user2RandomID",
@@ -48,19 +49,37 @@ const usersDatabase = {
 // LOGIN
 
 app.get("/login", (req, res) => {
+
   res.render("login");
 });
 
-/* app.post("/login", (req, res) => {
- res.cookie('username', req.body.username)
+app.post("/login", (req, res) => {
+
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = findUser(email)
+
+  if(!email || !password) {
+    return res.status(400).send('Enter in an email and password')
+  }
+
+  if(!user) {
+    return res.status(403).send('This email is not associated with a user')
+  }
+
+  if(user.password !== password) {
+    return res.status(403).send('Incorrect password')
+  }
+
+ res.cookie('userid', user.id)
  res.redirect('/urls')
-}); */
+});
 
 // LOGOUT
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
-  res.redirect('/urls');
+  res.clearCookie('userid');
+  res.redirect('/login');
 });
 
 // REGISTER
@@ -68,7 +87,7 @@ app.post("/logout", (req, res) => {
 app.get("/register", (req, res) => {
 
   const templateVars = {
-    user: usersDatabase[req.cookies['user_id']]
+    user: usersDatabase[req.cookies['userid']]
   };
 
   res.render("register", templateVars);
@@ -96,8 +115,8 @@ app.post("/register", (req, res) => {
   };
   
   // Give user a cookie based on their ID
-  res.cookie('user_id', userRandomID);
-  
+  res.cookie('userid', userRandomID);
+
   res.redirect("/urls");
 });
 
@@ -106,7 +125,7 @@ app.post("/register", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
-    user: usersDatabase[req.cookies['user_id']]
+    user: usersDatabase[req.cookies['userid']]
   };
   res.render("urls_index", templateVars);
 });
@@ -115,7 +134,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
 
   const templateVars = {
-    user: usersDatabase[req.cookies['user_id']]
+    user: usersDatabase[req.cookies['userid']]
   };
   res.render("urls_new", templateVars);
 });
@@ -132,7 +151,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    user: usersDatabase[req.cookies['user_id']]
+    user: usersDatabase[req.cookies['userid']]
   };
   res.render("urls_show", templateVars);
 });
