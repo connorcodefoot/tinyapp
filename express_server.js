@@ -6,6 +6,14 @@ function generateRandomString() {
   return randomString;
 }
 
+function findUser(email) {
+  for (const user in usersDatabase) {
+    if(email === usersDatabase[user].email){
+      return true
+    }
+  }
+}
+
 // Config files
 const express = require("express");
 const app = express();
@@ -68,8 +76,15 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  const userRandomID = generateRandomString();
+  if(req.body.email === '' || req.body.password === '') {
+    return res.status(400).send('Something broke!')
+  }
 
+  if(findUser(req.body.email)) {
+    return res.status(400).send('Something broke!')
+  }
+ 
+  const userRandomID = generateRandomString();
   usersDatabase[userRandomID] = {
     id: userRandomID,
     email: req.body.email,
@@ -86,7 +101,6 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: usersDatabase[req.cookies['user_id']]
   };
-  console.log(templateVars.user);
   res.render("urls_index", templateVars);
 });
 
@@ -125,7 +139,7 @@ app.post("/urls/:id/edit", (req, res) => {
 
 // Redirect user to the URL that corresponds to the ID provided with the URL param
 app.get("/u/:id", (req, res) => {
-  
+
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
