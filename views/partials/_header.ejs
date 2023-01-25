@@ -33,9 +33,12 @@
           <button type="submit" class="btn btn-outline-secondary" onclick="window.location.href = '/register';">Register</button>
         </form>
         <% } else { %>
+        <a class="nav-item nav-link" href="/urls"><%= user.email %></a>
+        <div class = "navbar-buttons">
         <form method="POST" action="/logout">
           <button type="submit" class="btn btn-outline-secondary">Logout</button>
         </form>
+        <div></div>
         <% } %>
       </div>
     </div>
