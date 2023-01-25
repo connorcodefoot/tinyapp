@@ -45,7 +45,7 @@ const usersDatabase = {
 
 /************************* ROUTES *************************/
 
-// Login
+// LOGIN
 
 app.get("/login", (req, res) => {
   res.render("login");
@@ -56,14 +56,14 @@ app.get("/login", (req, res) => {
  res.redirect('/urls')
 }); */
 
-// Logout
+// LOGOUT
 
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
-// Register
+// REGISTER
 
 app.get("/register", (req, res) => {
 
@@ -76,7 +76,11 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  if(req.body.email === '' || req.body.password === '') {
+  const email = req.body.email;
+  const password = req.body.password;
+  const userRandomID = generateRandomString();
+
+  if(!email || !password) {
     return res.status(400).send('Something broke!')
   }
 
@@ -84,13 +88,16 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Something broke!')
   }
  
-  const userRandomID = generateRandomString();
+  // Add user to database
   usersDatabase[userRandomID] = {
     id: userRandomID,
-    email: req.body.email,
-    password: req.body.password
+    email,
+    password,
   };
+  
+  // Give user a cookie based on their ID
   res.cookie('user_id', userRandomID);
+  
   res.redirect("/urls");
 });
 

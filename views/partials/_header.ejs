@@ -17,12 +17,10 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <% if(user === undefined) { %>
-        <form method="POST" action="/login">
-          <input type="text" id="email" name="email">
-          <button type="submit" class="btn btn-outline-primary">Login</button>
+          <button type="submit" class="btn btn-outline-primary" onclick="window.location.href = '/login';">Login </button>
+          <button type="submit" class="btn btn-outline-secondary" onclick="window.location.href = '/register';">Register</button>
         </form>
         <% } else { %>
-        <a class="nav-item nav-link" href=""><%= user.email %></a>
         <form method="POST" action="/logout">
           <button type="submit" class="btn btn-outline-secondary">Logout</button>
         </form>
