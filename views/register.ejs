@@ -1,20 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
-      crossorigin="anonymous"
-    />
-    <title>URL - TinyApp Example</title>
   </head>
   <body>
+    <%- include('partials/_header') %>
+<h1> Register</h1>
 <form method="POST" action="/register">
-  <label for="email">Email:</label>
-  <input type="email" name="email">
-  <label for="email">Password:</label>
+  <label for="email"><h5>Email</h5></label></br>
+  <input type="email" name="email"></br>
+  <label for="password"><h5>Password:</h5></label></br>
   <input type="passowrd" name="password">
   <button type="submit" class="btn btn-outline-primary">Submit</button>
 </form>

@@ -1,4 +1,14 @@
 <header>
+  <head>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+  <title>URL - TinyApp Example</title>
+  
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
     <button
@@ -16,7 +26,9 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if(user === undefined) { %>
+      </div>
+      <div class="navbar-buttons">
+        <% if(typeof user === 'undefined') { %>
           <button type="submit" class="btn btn-outline-primary" onclick="window.location.href = '/login';">Login </button>
           <button type="submit" class="btn btn-outline-secondary" onclick="window.location.href = '/register';">Register</button>
         </form>
