@@ -21,6 +21,12 @@ const urlDatabase = {
 
 /************************* ROUTES *************************/
 
+// Login
+
+app.get("/login", (req, res) => {
+  res.render("login")
+})
+
 // Urls index page - includes all URLs/IDs stored within the urldatabase
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
@@ -54,7 +60,7 @@ app.get("/u/:id", (req, res) => {
 // Edit URL
 app.post("/urls/:id/edit", (req, res) => {
 
-  urlDatabase[req.params.id] = req.body.newURL
+  urlDatabase[req.params.id] = req.body.newLongURL
   res.redirect(`/urls/${req.params.id}`); 
 });
 
