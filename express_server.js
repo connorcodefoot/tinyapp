@@ -28,9 +28,14 @@ function findUser(email) {
 
 // App database
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "3cozag" : "http://www.facebook.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const usersDatabase = {
@@ -160,7 +165,14 @@ app.post("/urls", (req, res) => {
   }
 
   const id = (generateRandomString(req.body.longURL));
-  urlDatabase[id] = req.body.longURL
+  const longURL = req.body.longURL;
+  const userID = req.cookies['userid']
+
+  urlDatabase[id] = {
+    longURL,
+    userID,
+  } 
+  
   res.redirect(`/urls/${id}`);
 });
 
@@ -173,7 +185,7 @@ app.get("/urls/:id", (req, res) => {
 
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     user: usersDatabase[req.cookies['userid']]
   };
   res.render("urls_show", templateVars);
@@ -186,7 +198,7 @@ app.post("/urls/:id/edit", (req, res) => {
     res.status(403).send('You do not have permission. Login first to create new URLs')
   }
 
-  urlDatabase[req.params.id] = req.body.newLongURL;
+  urlDatabase[req.params.id].longURL = req.body.newLongURL;
   res.redirect(`/urls/${req.params.id}`);
 });
 
@@ -198,7 +210,7 @@ app.get("/u/:id", (req, res) => {
     return res.status(404).send('Unable to find the URL your equested')
   }
 
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
 
