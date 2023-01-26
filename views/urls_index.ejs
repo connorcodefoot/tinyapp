@@ -4,9 +4,6 @@
 <body>
   <%- include('partials/_header') %>
     <main style="margin: 2em;">
-      <% if (user === undefined) { %>
-        <h6> You must be logged in to view this page</h6>
-        <% } else { %>
           <h3>My URLs</h3>
           <table class="table">
             <thead>
@@ -39,7 +36,6 @@
                 <% } %>
             </tbody>
           </table>
-          <% } %>
     </main>
     <!-- Bootstrap JS -->
     <%- include('partials/_scripts') %>
