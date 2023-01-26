@@ -223,12 +223,20 @@ app.get("/urls/:id", (req, res) => {
 // URL EDIT 
 app.post("/urls/:id/edit", (req, res) => {
 
-  if(!req.cookies['userid']) {
+  const cookieID = req.cookies['userid'];
+  const urlID = req.params.id;
+
+
+  if(cookieID !== urlDatabase[urlID].userID) {
+    res.status(403).send('You do not have permission to access this URL')
+  }
+
+  if(!cookieID) {
     res.status(403).send('You do not have permission. Login first to create new URLs')
   }
 
-  urlDatabase[req.params.id].longURL = req.body.newLongURL;
-  res.redirect(`/urls/${req.params.id}`);
+  urlDatabase[urlID].longURL = req.body.newLongURL;
+  res.redirect(`/urls/${urlID}`);
 });
 
 // EXTERNAL LINK TO URL
@@ -246,11 +254,18 @@ app.get("/u/:id", (req, res) => {
 // DELETE URL
 app.post("/urls/:id/delete", (req, res) => {
 
-  if(!req.cookies['userid']) {
-    res.status(403).send('You do not have permission. Login first to create new URLs')
+  const cookieID = req.cookies['userid'];
+  const urlID = req.params.id;
+
+  if(!cookieID) {
+    res.status(403).send('You do not have permission. Register or login first to manage URLs')
   }
 
-  delete urlDatabase[req.params.id];
+  if(cookieID !== urlDatabase[urlID].userID) {
+    res.status(403).send('You do not have permission to access this URL')
+  }
+
+  delete urlDatabase[urlID];
   res.redirect('/urls');
 });
 
