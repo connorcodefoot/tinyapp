@@ -1,5 +1,6 @@
 <header>
   <head>
+    <link rel="stylesheet" href="style.css" type="text/css">
     <!-- Bootstrap CSS -->
     <link
       rel="stylesheet"
@@ -8,9 +9,6 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
-
-    <!--- Additional CSS -->
-  <link rel="stylesheet" href="style.css">
 
   <title>URL - TinyApp Example</title>
   
@@ -39,7 +37,7 @@
         </form>
         <% } else { %>
         <a class="nav-item nav-link" href="/urls"><%= user.email %></a>
-        <div id = "navbar-buttons">
+        <div class = "navbar-nav mr-auto">
         <form method="POST" action="/logout">
           <button type="submit" class="btn btn-outline-secondary">Logout</button>
         </form>

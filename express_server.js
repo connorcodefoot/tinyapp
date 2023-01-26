@@ -26,15 +26,33 @@ function findUser(email) {
   }
 }
 
+function urlsForUser(id) {
+
+  const output = {
+  }
+
+  for (let url in urlDatabase) {
+    if(urlDatabase[url].userID === id)
+    output[url] = urlDatabase[url].longURL
+  }
+
+  return output
+
+}
+
 // App database
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
+    userID: "userRandomID",
+  },
+  b6UT4L: {
+    longURL: "https://www.barbaque.ca",
+    userID: "userRandomID",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "u13a24",
   },
 };
 
@@ -137,10 +155,14 @@ app.post("/register", (req, res) => {
 
 // URLS PAGE
 app.get("/urls", (req, res) => {
+
+  const userID = req.cookies['userid']
+  const userURLs = urlsForUser(userID);
+  
   const templateVars = {
-    urls: urlDatabase,
-    user: usersDatabase[req.cookies['userid']]
-  };
+    urls: userURLs,
+    user: usersDatabase[userID],
+  }
   res.render("urls_index", templateVars);
 });
 
@@ -179,14 +201,21 @@ app.post("/urls", (req, res) => {
 // URL SPECIFIC PAGE
 app.get("/urls/:id", (req, res) => {
 
-  if(!req.cookies['userid']) {
+  const cookieID = req.cookies['userid'];
+  const urlID = req.params.id;
+
+  if(!cookieID) {
     res.redirect('/login')
   }
 
+  if(cookieID !== urlDatabase[urlID].userID) {
+    res.status(403).send('You do not have permission to access this URL')
+  }
+
   const templateVars = {
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
-    user: usersDatabase[req.cookies['userid']]
+    id: urlID,
+    longURL: urlDatabase[urlID].longURL,
+    user: usersDatabase[cookieID]
   };
   res.render("urls_show", templateVars);
 });
