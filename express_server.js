@@ -1,4 +1,15 @@
 
+// Config files
+const express = require("express");
+const app = express();
+const PORT = 8080; // default port 8080
+app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+
+// Global Scope Functions
 
 function generateRandomString() {
 
@@ -15,20 +26,11 @@ function findUser(email) {
   }
 }
 
-// Config files
-const express = require("express");
-const app = express();
-const PORT = 8080; // default port 8080
-app.set("view engine", "ejs");
-app.use(express.urlencoded({ extended: true }));
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
-
-
 // App database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "9sm5xK": "http://www.google.com",
+  "3cozag" : "http://www.facebook.com"
 };
 
 const usersDatabase = {
@@ -44,11 +46,15 @@ const usersDatabase = {
   },
 };
 
-/************************* ROUTES *************************/
+/************************* USER ROUTES *************************/
 
 // LOGIN
 
 app.get("/login", (req, res) => {
+
+  if(req.cookies['userid']) {
+    res.redirect('/urls')
+  }
  
   res.render("login");
 });
@@ -86,6 +92,9 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
 
+  if(req.cookies['userid']) {
+    res.redirect('/urls')
+  }
   const templateVars = {
     user: usersDatabase[req.cookies['userid']]
   };
@@ -107,21 +116,21 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Something broke!')
   }
  
-  // Add user to database
   usersDatabase[userRandomID] = {
     id: userRandomID,
     email,
     password,
   };
   
-  // Give user a cookie based on their ID
   res.cookie('userid', userRandomID);
 
   res.redirect("/urls");
 });
 
+/************************* URL ROUTES *************************/
 
-// Urls index page - includes all URLs/IDs stored within the urldatabase
+
+// URLS PAGE
 app.get("/urls", (req, res) => {
   const templateVars = {
     urls: urlDatabase,
@@ -130,8 +139,12 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// Render URL Index submission form
+// NEW URL PAGE
 app.get("/urls/new", (req, res) => {
+
+  if(!req.cookies['userid']) {
+    res.redirect('/login')
+  }
 
   const templateVars = {
     user: usersDatabase[req.cookies['userid']]
@@ -139,15 +152,25 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// Posting data from /urls/new to url database + redirect to urls/id
+// NEW URL
 app.post("/urls", (req, res) => {
+
+  if(!req.cookies['userid']) {
+    res.status(403).send('You do not have permission. Login first to create new URLs')
+  }
+
   const id = (generateRandomString(req.body.longURL));
-  urlDatabase[id] = req.body.longURL;
+  urlDatabase[id] = req.body.longURL
   res.redirect(`/urls/${id}`);
 });
 
-// Render URL Show with information for the ID provided within the URL param
+// URL SPECIFIC PAGE
 app.get("/urls/:id", (req, res) => {
+
+  if(!req.cookies['userid']) {
+    res.redirect('/login')
+  }
+
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
@@ -156,40 +179,41 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// Edit URL
+// URL EDIT 
 app.post("/urls/:id/edit", (req, res) => {
+
+  if(!req.cookies['userid']) {
+    res.status(403).send('You do not have permission. Login first to create new URLs')
+  }
 
   urlDatabase[req.params.id] = req.body.newLongURL;
   res.redirect(`/urls/${req.params.id}`);
 });
 
-// Redirect user to the URL that corresponds to the ID provided with the URL param
+// EXTERNAL LINK TO URL
 app.get("/u/:id", (req, res) => {
+
+
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send('Unable to find the URL your equested')
+  }
 
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
-// Delete URL from database
+// DELETE URL
 app.post("/urls/:id/delete", (req, res) => {
+
+  if(!req.cookies['userid']) {
+    res.status(403).send('You do not have permission. Login first to create new URLs')
+  }
 
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
-});
-
-// Test Code
-app.get("/", (req, res) => {
-  res.send("Hello!");
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
