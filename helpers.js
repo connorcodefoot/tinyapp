@@ -11,7 +11,7 @@ const getUserByEmail = (email, database) => {
       return database[user]
     }
   }
-  return false
+  false
 }
 
 const urlsForUser = (id, database) => {
