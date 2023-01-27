@@ -1,6 +1,6 @@
 
 // Config files
-const {generateRandomString, getUserByEmail, urlsForUser} = require('./helpers')
+const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers');
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -18,15 +18,15 @@ const bcrypt = require("bcryptjs");
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    user_id: "username",
+    userid: "username",
   },
   b6UT4L: {
     longURL: "https://www.barbaque.ca",
-    user_id: "username2",
+    userid: "username2",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    user_id: "u13a24",
+    userid: "u13a24",
   },
 };
 
@@ -61,11 +61,11 @@ const usersDatabase = {
 
 app.get("/login", (req, res) => {
 
-  if (req.session.user_id) {
+  if (req.session.userid) {
     res.redirect('/urls');
   }
 
-  res.render("login");
+  return res.render("login");
 });
 
 app.post("/login", (req, res) => {
@@ -73,7 +73,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password.toString();
   const user = getUserByEmail(email, usersDatabase); // returns user object
-  
+
 
   if (!email || !password) {
     return res.status(400).send('Enter in a email and password');
@@ -86,7 +86,7 @@ app.post("/login", (req, res) => {
   bcrypt.compare(password, user.password)
     .then((result) => {
       if (result) {
-        req.session.user_id = user.id;
+        req.session.userid = user.id;
         return res.redirect('/urls');
       } else {
         return res.status(403).send('Incorrect password');
@@ -99,18 +99,18 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect('/login');
+  return res.redirect('/login');
 });
 
 // REGISTER
 
 app.get("/register", (req, res) => {
 
-  if (req.session.user_id) {
-    res.redirect('/urls');
+  if (req.session.userid) {
+    return res.redirect('/urls');
   }
   const templateVars = {
-    user: usersDatabase[req.session.user_id]
+    user: usersDatabase[req.session.userid]
   };
 
   res.render("register", templateVars);
@@ -131,18 +131,18 @@ app.post("/register", (req, res) => {
   }
 
   bcrypt.genSalt(10)
-  .then((salt) => {
-    return bcrypt.hash(password, salt);
-  })
-  .then((hash) => {
-    usersDatabase[username] = {
-      id: username,
-      email,
-      password: hash
-    };
-    req.session.user_id = username;
-    res.redirect("/urls");
-  });
+    .then((salt) => {
+      return bcrypt.hash(password, salt);
+    })
+    .then((hash) => {
+      usersDatabase[username] = {
+        id: username,
+        email,
+        password: hash
+      };
+      req.session.userid = username;
+      return res.redirect("/urls");
+    });
 });
 
 /************************* URL ROUTES *************************/
@@ -151,93 +151,96 @@ app.post("/register", (req, res) => {
 // URLS PAGE
 app.get("/urls", (req, res) => {
 
-  const user_id = req.session.user_id;
-  const userURLs = urlsForUser(user_id, urlDatabase);
+  const userid = req.session.userid;
+  const userURLs = urlsForUser(userid, urlDatabase);
 
-  if(!user_id) {
-    res.status(403).send('You do not have permission to access this URL');
+  if (!userid) {
+    return res.status(403).send('You do not have permission to access this URL');
   }
 
   const templateVars = {
     urls: userURLs,
-    user: usersDatabase[user_id],
+    user: usersDatabase[userid],
   };
-  console.log(templateVars.user);
-  res.render("urls_index", templateVars);
+
+  return res.render("urls_index", templateVars);
 });
 
 // NEW URL PAGE
 app.get("/urls/new", (req, res) => {
 
-  if (!req.session.user_id) {
-    res.redirect('/login');
+  if (!req.session.userid) {
+    return res.redirect('/login');
   }
 
   const templateVars = {
-    user: usersDatabase[req.session.user_id]
+    user: usersDatabase[req.session.userid]
   };
-  console.log(usersDatabase[req.session.user_id].email)
-  res.render("urls_new", templateVars);
+  return res.render("urls_new", templateVars);
 });
 
 // NEW URL
 app.post("/urls", (req, res) => {
 
-  if (!req.session.user_id) {
-    res.status(403).send('You do not have permission. Login first to create new URLs');
+  if (!req.session.userid) {
+    return res.status(403).send('You do not have permission. Login first to create new URLs');
   }
 
   const id = (generateRandomString(req.body.longURL));
   const longURL = req.body.longURL;
-  const user_id = req.session.user_id;
+  const userid = req.session.userid;
 
   urlDatabase[id] = {
     longURL,
-    user_id,
+    userid,
   };
 
-  res.redirect(`/urls/${id}`);
+  return res.redirect(`/urls/${id}`);
 });
 
 // URL SPECIFIC PAGE
 app.get("/urls/:id", (req, res) => {
 
-  const cookieID = req.session.user_id;
+  const userID = req.session.userid;
   const urlID = req.params.id;
 
-  if (!cookieID) {
-    res.redirect('/login');
+  if (!userID) {
+    return res.redirect('/login');
   }
 
-  if (cookieID !== urlDatabase[urlID].user_id) {
-    res.status(403).send('You do not have permission to access this URL');
+  if (!urlDatabase[urlID]) {
+    return res.status(403).send('This URL does not exist');
+  }
+
+  if (userID !== urlDatabase[urlID].userid) {
+    return res.status(403).send('You do not have permission to access this URL');
   }
 
   const templateVars = {
     id: urlID,
     longURL: urlDatabase[urlID].longURL,
-    user: usersDatabase[cookieID]
+    user: usersDatabase[userID]
   };
-  res.render("urls_show", templateVars);
+  return res.render("urls_show", templateVars);
 });
 
-// URL EDIT 
+// URL EDIT
 app.post("/urls/:id/edit", (req, res) => {
 
-  const cookieID = req.session.user_id;
+  const userID = req.session.userid;
   const urlID = req.params.id;
 
 
-  if (cookieID !== urlDatabase[urlID].user_id) {
-    res.status(403).send('You do not have permission to access this URL');
+  if (userID !== urlDatabase[urlID].userid) {
+    return res.status(403).send('You do not have permission to access this URL');
   }
 
-  if (!cookieID) {
-    res.status(403).send('You do not have permission. Login first to create new URLs');
+  if (!userID) {
+    return res.status(403).send('You do not have permission. Login first to create new URLs');
   }
 
   urlDatabase[urlID].longURL = req.body.newLongURL;
-  res.redirect(`/urls/${urlID}`);
+  return res.redirect(`/urls/${urlID}`);
 });
 
 // EXTERNAL LINK TO URL
@@ -249,25 +252,25 @@ app.get("/u/:id", (req, res) => {
   }
 
   const longURL = urlDatabase[req.params.id].longURL;
-  res.redirect(longURL);
+  return res.redirect(longURL);
 });
 
 // DELETE URL
 app.post("/urls/:id/delete", (req, res) => {
 
-  const cookieID = req.session.user_id;
+  const userID = req.session.userid;
   const urlID = req.params.id;
 
-  if (!cookieID) {
-    res.status(403).send('You do not have permission. Register or login first to manage URLs');
+  if (!userID) {
+    return res.status(403).send('You do not have permission. Register or login first to manage URLs');
   }
 
-  if (cookieID !== urlDatabase[urlID].user_id) {
-    res.status(403).send('You do not have permission to access this URL');
+  if (userID !== urlDatabase[urlID].userid) {
+    return res.status(403).send('You do not have permission to access this URL');
   }
 
   delete urlDatabase[urlID];
-  res.redirect('/urls');
+  return res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
