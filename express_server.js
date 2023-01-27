@@ -1,5 +1,6 @@
 
 // Config files
+const {generateRandomString, getUserByEmail, urlsForUser} = require('./helpers')
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -12,38 +13,6 @@ app.use(cookieSession({
 }));
 const bcrypt = require("bcryptjs");
 
-
-// Global Scope Functions
-
-function generateRandomString() {
-
-  const randomString = Math.random().toString(36).substring(2, 8);
-  return randomString;
-}
-
-function findUser(email) {
-  for (const user in usersDatabase) {
-
-    if(email === usersDatabase[user].email) {
-      return usersDatabase[user]
-    }
-  }
-  return false
-}
-
-function urlsForUser(id) {
-
-  const output = {
-  };
-
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].user_id === id)
-      output[url] = urlDatabase[url].longURL;
-  }
-
-  return output;
-
-}
 
 // App database
 const urlDatabase = {
@@ -103,7 +72,7 @@ app.post("/login", (req, res) => {
 
   const email = req.body.email;
   const password = req.body.password.toString();
-  const user = findUser(email); // returns user object
+  const user = getUserByEmail(email, usersDatabase); // returns user object
   
 
   if (!email || !password) {
@@ -157,7 +126,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send('Enter in a password and email');
   }
 
-  if (findUser(email)) {
+  if (getUserByEmail(email, usersDatabase)) {
     return res.status(400).send('A user with that email already exists');
   }
 
@@ -183,7 +152,7 @@ app.post("/register", (req, res) => {
 app.get("/urls", (req, res) => {
 
   const user_id = req.session.user_id;
-  const userURLs = urlsForUser(user_id);
+  const userURLs = urlsForUser(user_id, urlDatabase);
 
   if(!user_id) {
     res.status(403).send('You do not have permission to access this URL');
